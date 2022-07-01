@@ -7,6 +7,8 @@ interface Window {
     providers?: any[]
     request?: (...args: any[]) => Promise<void>
   }
+  // Stargate custom element api
+  root?: any
   BinanceChain?: {
     bnbSign?: (address: string, message: string) => Promise<{ publicKey: string; signature: string }>
   }
