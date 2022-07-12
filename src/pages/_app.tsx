@@ -5,7 +5,6 @@ import BigNumber from 'bignumber.js'
 import GlobalCheckClaimStatus from 'components/GlobalCheckClaimStatus'
 import FixedSubgraphHealthIndicator from 'components/SubgraphHealthIndicator'
 import { ToastListener } from 'contexts/ToastsContext'
-import useEagerConnect from 'hooks/useEagerConnect'
 import { useAccountEventListener } from 'hooks/useAccountEventListener'
 import useSentryUser from 'hooks/useSentryUser'
 import useUserAgent from 'hooks/useUserAgent'
@@ -16,6 +15,8 @@ import { PersistGate } from 'redux-persist/integration/react'
 import { useStore, persistor } from 'state'
 import { usePollBlockNumber } from 'state/block/hooks'
 import { usePollCoreFarmData } from 'state/farms/hooks'
+import { createNetworkGuard } from 'components/NetworkGuard'
+import { CHAIN_ID } from 'config/constants/networks'
 import { NextPage } from 'next'
 import { Blocklist, Updaters } from '..'
 import ErrorBoundary from '../components/ErrorBoundary'
@@ -33,7 +34,6 @@ BigNumber.config({
 
 function GlobalHooks() {
   usePollBlockNumber()
-  useEagerConnect()
   usePollCoreFarmData()
   useUserAgent()
   useAccountEventListener()
@@ -97,23 +97,29 @@ function MyApp(props: AppProps) {
 
 type NextPageWithLayout = NextPage & {
   Layout?: React.FC
+  NetworkGuard?: React.FC
 }
 
 type AppPropsWithLayout = AppProps & {
   Component: NextPageWithLayout
 }
 
+const DefaultNetworkGuard = createNetworkGuard(+CHAIN_ID)
+
 const ProductionErrorBoundary = process.env.NODE_ENV === 'production' ? ErrorBoundary : Fragment
 
 const App = ({ Component, pageProps }: AppPropsWithLayout) => {
   // Use the layout defined at the page level, if available
   const Layout = Component.Layout || Fragment
+  const NetworkGuard = Component.NetworkGuard || DefaultNetworkGuard
   return (
     <ProductionErrorBoundary>
       <Menu>
-        <Layout>
-          <Component {...pageProps} />
-        </Layout>
+        <NetworkGuard>
+          <Layout>
+            <Component {...pageProps} />
+          </Layout>
+        </NetworkGuard>
       </Menu>
       <EasterEgg iterations={2} />
       <ToastListener />

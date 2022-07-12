@@ -25,7 +25,7 @@ const useAuth = () => {
   const { toastError } = useToast()
 
   const login = useCallback(
-    async (connectorID: ConnectorNames) => {
+    async (connectorID: ConnectorNames, chain?: string | number) => {
       const connectorOrGetConnector = connectorsByName[connectorID]
       const connector =
         typeof connectorOrGetConnector !== 'function' ? connectorsByName[connectorID] : await connectorOrGetConnector()
@@ -33,11 +33,13 @@ const useAuth = () => {
       if (typeof connector !== 'function' && connector) {
         activate(connector, async (error: Error) => {
           if (error instanceof UnsupportedChainIdError) {
-            setError(error)
-            const provider = await connector.getProvider()
-            const hasSetup = await setupNetwork(provider)
-            if (hasSetup) {
-              activate(connector)
+            if (chain) {
+              setError(error)
+              const provider = await connector.getProvider()
+              const hasSetup = await setupNetwork(provider, +chain)
+              if (hasSetup) {
+                activate(connector)
+              }
             }
           } else {
             window?.localStorage?.removeItem(connectorLocalStorageKey)
