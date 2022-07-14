@@ -21,7 +21,7 @@
     "format:write": "prettier --write \"**/*.{js,jsx,ts,tsx,json}\"",
     "updateLPsAPR": "NODE_PATH=./src ts-node --compiler-options '{\"module\":\"commonjs\"}' scripts/updateLPsAPR.ts",
     "prepare": "husky install",
-    "postinstall": "yarn run typechain",
+    "postinstall": "concurrently \"yarn run typechain\" \"yarn lerna run build --scope=@pancakeswap/sdk\"",
     "typechain": "typechain --out-dir src/config/abi/types --target=ethers-v5 \"src/config/abi/*.json\""
   },
   "browserslist": {
@@ -51,7 +51,6 @@
     "@ethersproject/units": "^5.5.0",
     "@gelatonetwork/limit-orders-lib": "^4.1.0",
     "@next/bundle-analyzer": "^12.0.7",
-    "@pancakeswap/sdk": "^2.4.5",
     "@reduxjs/toolkit": "^1.8.2",
     "@sentry/nextjs": "6.19.6",
     "@uniswap/token-lists": "^1.0.0-beta.19",
@@ -114,6 +113,7 @@
     "@types/react-window": "^1.8.3",
     "@types/simplemde": "^1.11.7",
     "@types/styled-components": "^5.1.24",
+    "concurrently": "^7.2.2",
     "cypress": "8.3.1",
     "eslint": "^7.26.0",
     "eslint-plugin-cypress": "^2.11.3",
